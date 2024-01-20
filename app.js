@@ -196,12 +196,12 @@ app.get("/Student-Dashboard", ConnectEnsureLogin.ensureLoggedIn(), async (reques
     if (request.user.role == "Educator") {
         response.redirect("/Educator-Dashboard")
     } else {
-        response.render("student-Dashboard", { title: `${CurrentUser.fullName} student-Dashboard` });
+        response.render("Student-Dashboard", { title: `${CurrentUser.fullName} student-Dashboard` });
     }
 });
 
 //page for creating course
-app.get("/course", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+app.get("/Createcourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     response.render("createcourse", {
         title: 'Create New Course',
         csrfToken: request.csrfToken(),
@@ -227,7 +227,7 @@ app.post("/createCourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, r
     try {
         await course.create({
             title: request.body.title,
-            userID: request.user.id,
+            userID: CurrentUser.id,
         });
         console.log("course created succesfull")
         return response.redirect(`/Educator-Dashboard`);
@@ -237,23 +237,62 @@ app.post("/createCourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, r
     }
 })
 
-//page for creating Chapters
-app.get("/course/:id", async (request, response) => {
-    response.render("chapter");
+//page for viewing Chapters
+app.get("/course/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+    const courseTobeEdited = await course.findByPk(request.params.id);
+    const chapterofcourse = await chapter.findAll({
+        where: {
+            courseID: courseTobeEdited.id,
+        },
+        order: [["id", "ASC"]],
+    });
+    // console.log("Chapters:", chapterofcourse)
+    // console.log("course:", courseTobeEdited)
+    response.render("chapter", {
+        title: `${course}`,
+        courseTobeEdited,
+        chapterofcourse,
+        csrfToken: request.csrfToken(),
+    });
+})
+
+//page to create chapters
+app.get("/course/:id/createchapter", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+    const courseTobeEdited = await course.findByPk(request.params.id);
+    const courseID = request.params.id;
+    const chapterofcourse = await chapter.findAll({
+        where: {
+            courseID: courseTobeEdited.id,
+        },
+        order: [["id", "ASC"]],
+    });
+    // console.log("Chapters:", chapterofcourse)
+    // console.log("course:", courseTobeEdited)
+    response.render("createchapter", {
+        title: `Create Chapter for ${courseTobeEdited.title}`,
+        courseID,
+        chapterofcourse,
+        courseTobeEdited,
+        csrfToken: request.csrfToken(),
+    })
 })
 
 //creating new chapter
-app.post("/chapter", async (request, response) => {
-    console.log("name", request.body.name)
-    console.log("discription", request.body.discription);
-    console.log("title", request.course.title);
+app.post("/course/:id/createchapter", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+    const courseTobeEdited = await course.findByPk(request.params.id);
+    // console.log("course:", courseTobeEdited);
+    const courseID = courseTobeEdited.id;
+    // console.log("name", courseID)
+    // console.log("name", request.body.name)
+    // console.log("discription", request.body.discription);
+    // console.log("title", courseTobeEdited.title);
     try {
         await chapter.createchapter({
             name: request.body.name,
             discription: request.body.discription,
-            id: request.course.id,
+            courseID,
         })
-        response.redirect("/chapter")
+        response.redirect(`/course/${courseID}`)
     } catch (error) {
 
     }

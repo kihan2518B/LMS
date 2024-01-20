@@ -20,11 +20,11 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     //creating chapter
-    static createchapter({ name, discription, id }) {
+    static createchapter({ name, discription, courseID }) {
       return this.create({
         name: name,
         discription: discription,
-        id
+        courseID
       })
     }
   }
