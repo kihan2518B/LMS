@@ -1,0 +1,8 @@
+body {
+    /* background-color: blueviolet; */
+    background: url(../image/bgimg.jpg);
+    background-size: cover;
+    font-family: "Times New Roman", Times, serif;
+    /* color: blue; */
+    box-sizing: border-box;
+}

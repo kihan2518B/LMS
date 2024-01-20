@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-Token" content="<%= csrfToken %>">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div class="header grid grid-cols-6">
+        <div class="col-start-3 col-span-2">
+            <h6>Signup as a new user</h6>
+            <form action="/users" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <div class="py-3">
+                    <label for="dropdown">SignUp As</label>
+                    <select id="dropdown" name="role">
+                        <option value="Educator">Teacher</option>
+                        <option value="Student">Student</option>
+                    </select>
+                </div>
+                <div class="py-3">
+                    <label for="fullName">fullName:</label>
+                    <input class="border border-slate-400 rounded p-2 text-gray-900 w-full text-sm leading-4"
+                        type="text" name="fullName" id="" />
+                </div>
+                <div class="py-3">
+                    <label for="email">Email:</label>
+                    <input class="border border-slate-400 rounded p-2 text-gray-900 w-full text-sm leading-4"
+                        type="text" name="email" id="" />
+                </div>
+                <div class="py-3">
+                    <label for="password">Password:</label>
+                    <input class="border border-slate-400 rounded p-2 text-gray-900 w-full text-sm leading-4"
+                        type="password" name="password" id="" />
+                </div>
+                <div class="py-3">
+                    <button
+                        class="cursor-pointer transition-all bg-blue-500 text-white px-4 py-1 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px]border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] leading-4"
+                        type="submit">Signup</button>
+                    <a href="/login">Already a user? Signin</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
