@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { course, chapter, user } = require("./models");
+const { course, chapter, user, page } = require("./models");
 const bodyParser = require("body-parser");
 const path = require("path");
 const csrf = require("tiny-csrf");
@@ -12,6 +12,7 @@ const passport = require("passport");
 const ConnectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local");
+const { create } = require("domain");
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
@@ -246,10 +247,10 @@ app.get("/course/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, resp
         },
         order: [["id", "ASC"]],
     });
-    // console.log("Chapters:", chapterofcourse)
-    // console.log("course:", courseTobeEdited)
+    // console.log("Chapters:", chapterofcourse[0].id)
+    // console.log("course:", courseTobeEdited.id)
     response.render("chapter", {
-        title: `${course}`,
+        title: `${courseTobeEdited.title}`,
         courseTobeEdited,
         chapterofcourse,
         csrfToken: request.csrfToken(),
@@ -294,7 +295,73 @@ app.post("/course/:id/createchapter", ConnectEnsureLogin.ensureLoggedIn(), async
         })
         response.redirect(`/course/${courseID}`)
     } catch (error) {
-
+        console.log(error);
+        return response.status(422).json(error)
     }
+});
+
+//Showing Pages
+app.get("/chapter/:id", async (request, response) => {
+    const currentChapter = await chapter.findByPk(request.params.id);
+    const currentCourse = await course.findAll({
+        where: {
+            id: currentChapter.courseID,
+        }
+    })
+    console.log("course", currentCourse);
+    const PagesofChapter = await page.findAll({
+        where: {
+            chapterID: currentChapter.id,
+        },
+        order: [["id", "ASC"]],
+    });
+
+    response.render("pages", {
+        title: `${currentChapter.name}`,
+        currentChapter,
+        currentCourse,
+        PagesofChapter,
+        csrfToken: request.csrfToken(),
+    })
+});
+
+//page to add pages
+app.get("/chapter/:id/createpage", async (request, response) => {
+    const currentChapter = await chapter.findByPk(request.params.id);
+    const currentCourse = await course.findAll({
+        where: {
+            id: currentChapter.courseID,
+        }
+    })
+    response.render("createpage", {
+        title: `${currentChapter.name}`,
+        currentChapter,
+        currentCourse,
+        csrfToken: request.csrfToken(),
+    })
+});
+
+//adding pages
+app.post("/chapter/:id/createpage", async (request, response) => {
+    const chapterTobeEdited = await chapter.findByPk(request.params.id);
+    const chapterID = chapterTobeEdited.id;
+    // console.log("course:", chapterTobeEdited);
+    // console.log("ChapterId", chapterID)
+    // console.log("title", request.body.title)
+    // console.log("Content", request.body.content);
+    // console.log("title", chapterTobeEdited.name);
+    try {
+        await page.create({
+            title: request.body.title,
+            content: request.body.content,
+            chapterID,
+        })
+        response.redirect(`/chapter/${chapterID}`)
+    } catch (error) {
+        console.log(error);
+        return response.status(422).json(error);
+    }
+
 })
+
 module.exports = app;

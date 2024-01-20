@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <title>
+        <%= title %>
+    </title>
 </head>
 
 <body
@@ -41,7 +44,7 @@
     <% }else{ %>
         <ul class="list-decimal">
             <% for(var i=0; i<chapterofcourse.length ; i++) { %>
-                <a href="#">
+                <a href="/chapter/<%= chapterofcourse[i].id %>">
                     <li class="pb-3">
                         <%= chapterofcourse[i].name %>
                     </li>

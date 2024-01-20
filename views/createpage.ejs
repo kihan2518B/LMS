@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <title>
+        <%= title %>
+    </title>
 </head>
 
 <body
@@ -13,39 +16,39 @@
         <a href="/Educator-Dashboard" class="ml-80 underline decoration-blue-400 text-blue-600">Home</a>
         <p class="ml-3 text-blue-600"> ></p>
         <a href="/" class="underline decoration-blue-400 text-blue-600">
-            <%= courseTobeEdited.title %>
+            <%= currentChapter.name %>
         </a>
-        <p class="ml-2"> >Create a new chapter</p>
+        <p class="ml-2"> >New page</p>
     </div>
-    <div class="flex mt-7 mb-10 ml-80 ">
-        <h1 class="text-7xl font-semibold " style="color:#871be6">Create chapter</h1>
+    <div class="flex mt-5 mb-7  ml-80 ">
+        <h1 class="text-7xl font-semibold " style="color:#871be6">New page</h1>
     </div>
-    <form action="/course/<%= courseID%>/createchapter" method="post">
+    <form action="/chapter/<%= currentChapter.id %>/createpage" method="post">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-        <div class="flex mt-5 ml-80 text-2xl">
-            <p>What is the name of this chapter?</p>
+        <div class="flex mt-2 ml-80 text-2xl">
+            <p>Title</p>
         </div>
         <div class="flex mt-2 mx-80 ">
-            <label for="name"></label>
-            <input type="text" name="name" class="border border-gray-300 text-gray-900 rounded p-1 w-full" required>
+            <label for="title"></label>
+            <input type="text" name="title" class="border border-gray-300 text-gray-900 rounded p-1 w-full">
         </div>
-        <div class="flex mt-5 ml-80 text-2xl">
-            <p>Discription</p>
+        <div class="flex mt-10 ml-80 text-2xl">
+            <p>Content:</p>
         </div>
-        <div class="flex mt-2 mx-80 ">
-            <label for="description" required></label>
-            <textarea type="text" name="discription"
-                class="border pb-20 border-gray-300 text-gray-900 p-1 rounded w-full"></textarea>
+        <div class="flex mt-2 mx-80">
+            <label for="content"></label>
+            <textarea type="text" name="content"
+                class="border pb-40 border-gray-300 text-gray-900 p-1 rounded w-full"></textarea>
         </div>
-        <div class="flex ml-80 mt-5 ">
+        <div class="flex ml-80 mt-3 ">
             <a href="#">
-                <button type="submit"
+                <button
                     class="w-[150px] bg-pink-300 h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]">
                     Submit
                 </button>
             </a>
+        </div>
     </form>
-    </div>
 </body>
 
 </html>

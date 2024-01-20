@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>
+        <%= title %>
+    </title>
+</head>
+
+<body
+    style="background-size: cover; background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBzMyAh4VOqkczAN_V4jr37IQYlobg8PUR7w&usqp=CAU);">
+    <div class="flex mt-10 ">
+        <a href="/Educator-Dashboard" class="ml-80 underline decoration-blue-400 text-blue-600">Home</a>
+        <p class="ml-3 text-blue-600">></p>
+        <a href="/" class="underline decoration-blue-400 text-blue-600">
+            <%= currentCourse[0].title %>
+        </a>
+        <p class="ml-2"> >
+            <%= currentChapter.name %>
+        </p>
+    </div>
+    <div class="flex mt-7 mb-10 ml-80 ">
+        <h1 class="text-7xl font-semibold " style="color:#871be6">
+            <%= currentChapter.name %>
+        </h1>
+        <a href="#" class="ml-5 mt-10 underline decoration-blue-400 text-blue-600">Delete</a>
+    </div>
+    <div class="ml-60 text-purple-700">
+        <p>_____________________________________________________________________________________________________________________________________________________
+        </p>
+    </div>
+    <div class="flex mt-5 ml-80 ">
+        <p class="text-5xl text-pink-500 ">Pages</p>
+        <a href="/chapter/<%= currentChapter.id %>/createpage">
+            <button
+                class=" ml-32 w-[170px] bg-pink-300 h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]">
+                Create a new page
+            </button>
+        </a>
+    </div>
+    <div class="flex mt-5 ml-80 text-2xl">
+        <% if(PagesofChapter.length===0){ %>
+            <p>There are no pages available. Create one?</p>
+            <% } else { %>
+                <ul class="list-decimal">
+                    <% for(var i=0; i<PagesofChapter.length ; i++) { %>
+                        <a href="#">
+                            <li class="pb-3">
+                                <%= PagesofChapter[i].title %>
+                            </li>
+                        </a>
+                        <% } %>
+                </ul>
+                <% } %>
+    </div>
+</body>
+
+</html>
