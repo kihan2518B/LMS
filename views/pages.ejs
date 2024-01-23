@@ -47,9 +47,10 @@
             <% } else { %>
                 <ul class="list-decimal">
                     <% for(var i=0; i<PagesofChapter.length ; i++) { %>
-                        <a href="#">
+                        <a href="/chapter/<%= PagesofChapter[i].id %>/page">
                             <li class="pb-3">
                                 <%= PagesofChapter[i].title %>
+                                    <%= PagesofChapter[i].id %>
                             </li>
                         </a>
                         <% } %>

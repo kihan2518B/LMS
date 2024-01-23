@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-Token" content="<%= csrfToken %>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>
+        <%= title %>
+    </title>
+    <script>
+        var token = document.querySelector('meta[name="csrf-Token"]').getAttribute("content");
+        function deletepage(id) {
+            fetch(`/pages/${id}/delete`, {
+                method: "delete",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    "_csrf": token
+                })
+            })
+                .then((res) => {
+                    if (res.ok) {
+                        alert(`Page deleted succesfully`);
+                        window.location.href = "/chapter/<%= currentChapter.id %>"
+                    }
+                })
+                .catch((err) => {
+                    console.log(error);
+                })
+        }
+    </script>
+</head>
+
+<body
+    style="background-size: cover; background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBzMyAh4VOqkczAN_V4jr37IQYlobg8PUR7w&usqp=CAU);">
+    <a href="/Educator-Dashboard" class="text-purple-700">Back To Dashboard</a>
+    <div class="flex ">
+        <a href="#" class="justify-self-end content-end mt-10 underline decoration-blue-400 text-blue-600">
+            <button onclick="deletepage(<%=currentpage.id%>)">
+                Delete
+            </button>
+        </a>
+    </div>
+    <form action="">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    </form>
+    <div class="flex items-center justify-center mt-10">
+        <div class="w-fit h-fit text-blue-900 text-2xl font-bold underline">
+            <h1>
+                <%= currentpage.title %>
+            </h1>
+        </div>
+    </div>
+    <div class="flex items-center ml-44 mt-10">
+        <div class=" text-gray-900">
+            <p>
+                <%= currentpage.content %>
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

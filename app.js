@@ -308,7 +308,7 @@ app.get("/chapter/:id", async (request, response) => {
             id: currentChapter.courseID,
         }
     })
-    console.log("course", currentCourse);
+    // console.log("course", currentCourse);
     const PagesofChapter = await page.findAll({
         where: {
             chapterID: currentChapter.id,
@@ -325,8 +325,32 @@ app.get("/chapter/:id", async (request, response) => {
     })
 });
 
+//page to show content of page
+app.get("/chapter/:id/page", async (request, response) => {
+    const currentpage = await page.findByPk(request.params.id);
+    const currentChapter = await chapter.findAll({
+        where: {
+            id: currentpage.chapterID,
+        },
+        order: [["id", "ASC"]],
+    });
+    const currentCourse = await course.findAll({
+        where: {
+            id: currentChapter[0].courseID,
+        },
+        order: [["id", "ASC"]],
+    })
+    response.render("pagecontent", {
+        title: `${currentpage.title}`,
+        currentpage,
+        currentCourse,
+        currentChapter,
+        csrfToken: request.csrfToken(),
+    })
+})
+
 //page to add pages
-app.get("/chapter/:id/createpage", async (request, response) => {
+app.get("/chapter/:id/createpage", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const currentChapter = await chapter.findByPk(request.params.id);
     const currentCourse = await course.findAll({
         where: {
@@ -342,7 +366,7 @@ app.get("/chapter/:id/createpage", async (request, response) => {
 });
 
 //adding pages
-app.post("/chapter/:id/createpage", async (request, response) => {
+app.post("/chapter/:id/createpage", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const chapterTobeEdited = await chapter.findByPk(request.params.id);
     const chapterID = chapterTobeEdited.id;
     // console.log("course:", chapterTobeEdited);
@@ -362,6 +386,23 @@ app.post("/chapter/:id/createpage", async (request, response) => {
         return response.status(422).json(error);
     }
 
+});
+
+//delete a page
+app.delete("/pages/:id/delete", async (request, response) => {
+    const currentpage = await page.findByPk(request.params.id);
+    try {
+        const deletedpage = await page.destroy({
+            where: {
+                id: currentpage.id,
+            }
+        });
+        console.log("deleted", deletedpage);
+        response.send(deletedpage ? true : false);
+    } catch (error) {
+        console.log("Error While Deleting", error);
+        return response.status(422).json(error);
+    }
 })
 
 module.exports = app;
