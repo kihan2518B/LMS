@@ -15,7 +15,7 @@
     <div class="flex mt-10 ">
         <a href="/Educator-Dashboard" class="ml-80 underline decoration-blue-400 text-blue-600">Home</a>
         <p class="ml-3 text-blue-600">></p>
-        <a href="/" class="underline decoration-blue-400 text-blue-600">
+        <a href="/course/<%= currentCourse[0].id %>" class="underline decoration-blue-400 text-blue-600">
             <%= currentCourse[0].title %>
         </a>
         <p class="ml-2"> >
@@ -26,7 +26,6 @@
         <h1 class="text-7xl font-semibold " style="color:#871be6">
             <%= currentChapter.name %>
         </h1>
-        <a href="#" class="ml-5 mt-10 underline decoration-blue-400 text-blue-600">Delete</a>
     </div>
     <div class="ml-60 text-purple-700">
         <p>_____________________________________________________________________________________________________________________________________________________
@@ -50,7 +49,6 @@
                         <a href="/chapter/<%= PagesofChapter[i].id %>/page">
                             <li class="pb-3">
                                 <%= PagesofChapter[i].title %>
-                                    <%= PagesofChapter[i].id %>
                             </li>
                         </a>
                         <% } %>

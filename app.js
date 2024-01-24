@@ -301,7 +301,7 @@ app.post("/course/:id/createchapter", ConnectEnsureLogin.ensureLoggedIn(), async
 });
 
 //Showing Pages
-app.get("/chapter/:id", async (request, response) => {
+app.get("/chapter/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const currentChapter = await chapter.findByPk(request.params.id);
     const currentCourse = await course.findAll({
         where: {
@@ -326,7 +326,7 @@ app.get("/chapter/:id", async (request, response) => {
 });
 
 //page to show content of page
-app.get("/chapter/:id/page", async (request, response) => {
+app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const currentpage = await page.findByPk(request.params.id);
     const currentChapter = await chapter.findAll({
         where: {
@@ -389,7 +389,7 @@ app.post("/chapter/:id/createpage", ConnectEnsureLogin.ensureLoggedIn(), async (
 });
 
 //delete a page
-app.delete("/pages/:id/delete", async (request, response) => {
+app.delete("/pages/:id/delete", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const currentpage = await page.findByPk(request.params.id);
     try {
         const deletedpage = await page.destroy({
