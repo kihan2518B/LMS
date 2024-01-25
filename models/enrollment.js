@@ -18,6 +18,12 @@ module.exports = (sequelize, DataTypes) => {
         courseID: courseid,
       })
     }
+
+    setcompletionstatus(bool) {
+      const notbool = !bool;
+      return this.update({ completed: notbool });
+    }
+
   }
   enrollment.init({
     userID: DataTypes.INTEGER,

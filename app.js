@@ -322,6 +322,7 @@ app.get("/chapter/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, res
 //page to show content of page
 app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const currentpage = await page.findByPk(request.params.id);
+
     const user = request.user;
     const currentChapter = await chapter.findAll({
         where: {
@@ -335,14 +336,65 @@ app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request
         },
         order: [["id", "ASC"]],
     })
+    const pageCompletedStatus = await enrollment.findOne({
+        where: {
+            pageID: currentpage.id,
+            userID: user.id,
+        }
+    });
+    // console.log("pageCompletedStatus", pageCompletedStatus)
     response.render("pagecontent", {
         title: `${currentpage.title}`,
         currentpage,
         currentCourse,
         currentChapter,
         user,
+        pageCompletedStatus,
         csrfToken: request.csrfToken(),
     })
+})
+
+// making pages as completed
+app.post("/chapter/:id/markAsCompleted", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+    try {
+        const currentpage = await page.findByPk(request.params.id);
+        const currentChapter = await chapter.findAll({
+            where: {
+                id: currentpage.chapterID,
+            },
+            order: [["id", "ASC"]],
+        });
+        const currentCourse = await course.findAll({
+            where: {
+                id: currentChapter[0].courseID,
+            },
+            order: [["id", "ASC"]],
+        })
+
+        const userID = request.user.id;
+        const courseID = currentCourse[0].id;
+        const chapterID = currentChapter[0].id;
+        const pageID = currentpage.id;
+
+        // console.log(userID);
+        // console.log(courseID);
+        // console.log(chapterID);
+        // console.log(pageID);
+        await enrollment.create({
+            userID: userID,
+            courseID: courseID,
+            chapterID: chapterID,
+            pageID: pageID,
+            completed: true,
+        });
+
+        response.redirect(`/chapter/${pageID}/page`)
+    } catch (error) {
+        console.error("Error marking page as complete", error);
+        response
+            .status(500)
+            .send("An error occurred while marking the page as complete");
+    }
 })
 
 //page to add pages
@@ -405,15 +457,27 @@ app.delete("/pages/:id/delete", ConnectEnsureLogin.ensureLoggedIn(), async (requ
 app.get("/Student-Dashboard", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const CurrentUser = request.user;
     const AllCourses = await course.findAll(); //all courses in DB
+
     if (request.user.role == "Educator") {
         response.redirect("/Educator-Dashboard")
     } else {
+
+        for (let courseDetails of AllCourses) {
+            let enrollStudentCount = await enrollment.findAll({
+                where: {
+                    courseID: courseDetails.id,
+                }
+            })
+            // console.log("student count ", enrollStudentCount);
+
+        }
         response.render("Student-Dashboard", {
             title: `${CurrentUser.fullName} student-Dashboard`,
             CurrentUser,
             AllCourses,
             csrfToken: request.csrfToken(),
         });
+
     }
 });
 
@@ -503,7 +567,7 @@ app.get("/Student/enrolled-courses", ConnectEnsureLogin.ensureLoggedIn(), async 
         console.log("coursesWithPageInfo", coursesWithPageInfo);
 
         const existingusers = await user.findAll();
-        console.log("existingusers", existingusers)
+        // console.log("existingusers", existingusers)
         response.render("STUmycourse", {
             title: `${currentUser.fullName}'s enrolled courses`,
             courses: coursesWithPageInfo,
@@ -516,5 +580,7 @@ app.get("/Student/enrolled-courses", ConnectEnsureLogin.ensureLoggedIn(), async 
         return response.status(402).json(error);
     }
 })
+
+
 
 module.exports = app;
