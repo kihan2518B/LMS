@@ -324,25 +324,31 @@ app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request
     const currentpage = await page.findByPk(request.params.id);
 
     const user = request.user;
-    const currentChapter = await chapter.findAll({
+    const currentChapter = await chapter.findOne({
         where: {
             id: currentpage.chapterID,
         },
         order: [["id", "ASC"]],
     });
-    const currentCourse = await course.findAll({
+    console.log("Chapter", currentChapter);
+    const currentCourse = await course.findOne({
         where: {
-            id: currentChapter[0].courseID,
+            id: currentChapter.courseID,
         },
         order: [["id", "ASC"]],
     })
+    console.log("course", currentCourse);
+
     const pageCompletedStatus = await enrollment.findOne({
         where: {
-            pageID: currentpage.id,
             userID: user.id,
+            courseID: currentCourse.id,
+            chapterID: currentChapter.id,
+            pageID: currentpage.id,
+            completed: true,
         }
     });
-    // console.log("pageCompletedStatus", pageCompletedStatus)
+    console.log("pageCompletedStatus", pageCompletedStatus)
     response.render("pagecontent", {
         title: `${currentpage.title}`,
         currentpage,
@@ -553,12 +559,14 @@ app.get("/Student/enrolled-courses", ConnectEnsureLogin.ensureLoggedIn(), async 
                         }
                     })
                     console.log("completedPagescount", completedPagescount);
+                    let progressReport = completedPagescount / totalPages * 100;
                     //pushing all data if course is not pre-existing
                     coursesWithPageInfo.push({
                         userID: currentUserID,
                         courseID: Course.id,
                         courseName: Course.title,
                         completedPagescount: completedPagescount,
+                        progressReport: progressReport,
                         totalPages: totalPages,
                     });
                 }
