@@ -14,7 +14,12 @@ module.exports = (sequelize, DataTypes) => {
       user.hasMany(models.course, {
         foreignKey: "userID",
       });
+      user.belongsToMany(models.page, {
+        through: models.enrollment,
+        foreignKey: "userID",
+      });
     }
+
 
   }
   user.init({

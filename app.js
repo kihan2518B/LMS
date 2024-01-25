@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { course, chapter, user, page } = require("./models");
+const { course, chapter, user, page, enrollment } = require("./models");
 const bodyParser = require("body-parser");
 const path = require("path");
 const csrf = require("tiny-csrf");
@@ -191,16 +191,6 @@ app.get("/Educator-Dashboard", ConnectEnsureLogin.ensureLoggedIn(), async (reque
     }
 })
 
-//home page for Students
-app.get("/Student-Dashboard", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-    const CurrentUser = request.user;
-    if (request.user.role == "Educator") {
-        response.redirect("/Educator-Dashboard")
-    } else {
-        response.render("Student-Dashboard", { title: `${CurrentUser.fullName} student-Dashboard` });
-    }
-});
-
 //page for creating course
 app.get("/Createcourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     response.render("createcourse", {
@@ -210,11 +200,11 @@ app.get("/Createcourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, re
 })
 
 //Teachers Courses
-app.get("/myCourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+app.get("/TEAmyCourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const CurrentUser = request.user;
     const LoggedInUser = CurrentUser.id;
     const allCourses = await course.getCourse(LoggedInUser);
-    response.render("mycourse", {
+    response.render("TEAmycourse", {
         title: `${CurrentUser.fullName} Courses`,
         allCourses,
         CurrentUser,
@@ -241,6 +231,7 @@ app.post("/createCourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, r
 //page for viewing Chapters
 app.get("/course/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const courseTobeEdited = await course.findByPk(request.params.id);
+    const user = request.user;
     const chapterofcourse = await chapter.findAll({
         where: {
             courseID: courseTobeEdited.id,
@@ -253,6 +244,7 @@ app.get("/course/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, resp
         title: `${courseTobeEdited.title}`,
         courseTobeEdited,
         chapterofcourse,
+        user,
         csrfToken: request.csrfToken(),
     });
 })
@@ -303,6 +295,7 @@ app.post("/course/:id/createchapter", ConnectEnsureLogin.ensureLoggedIn(), async
 //Showing Pages
 app.get("/chapter/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const currentChapter = await chapter.findByPk(request.params.id);
+    const user = request.user;
     const currentCourse = await course.findAll({
         where: {
             id: currentChapter.courseID,
@@ -320,6 +313,7 @@ app.get("/chapter/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, res
         title: `${currentChapter.name}`,
         currentChapter,
         currentCourse,
+        user,
         PagesofChapter,
         csrfToken: request.csrfToken(),
     })
@@ -328,6 +322,7 @@ app.get("/chapter/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, res
 //page to show content of page
 app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const currentpage = await page.findByPk(request.params.id);
+    const user = request.user;
     const currentChapter = await chapter.findAll({
         where: {
             id: currentpage.chapterID,
@@ -345,6 +340,7 @@ app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request
         currentpage,
         currentCourse,
         currentChapter,
+        user,
         csrfToken: request.csrfToken(),
     })
 })
@@ -402,6 +398,122 @@ app.delete("/pages/:id/delete", ConnectEnsureLogin.ensureLoggedIn(), async (requ
     } catch (error) {
         console.log("Error While Deleting", error);
         return response.status(422).json(error);
+    }
+});
+
+//Dashboard for Students
+app.get("/Student-Dashboard", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+    const CurrentUser = request.user;
+    const AllCourses = await course.findAll(); //all courses in DB
+    if (request.user.role == "Educator") {
+        response.redirect("/Educator-Dashboard")
+    } else {
+        response.render("Student-Dashboard", {
+            title: `${CurrentUser.fullName} student-Dashboard`,
+            CurrentUser,
+            AllCourses,
+            csrfToken: request.csrfToken(),
+        });
+    }
+});
+
+// enrolling student
+app.post("/enroll/:courseID", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+    const courseID = request.params.courseID;
+    // console.log("CourseID", courseID);
+    const currentUserID = request.query.currentUserID
+    // console.log("currentUserID", currentUserID)
+
+    //checking if user has already enrolled
+    const existingEnrolledCourse = await enrollment.findOne({
+        where: {
+            userID: currentUserID,
+            courseID,
+        }
+    });
+    // console.log("existingEnrolledCourse", existingEnrolledCourse)
+
+    if (existingEnrolledCourse) {
+        return response
+            .status(404)
+            .json({ message: "You are already enrolled in this course" });
+    }
+    try {
+        const enrollmentcheck = await enrollment.createenrollnment(courseID, currentUserID);
+        // console.log("enrollmentcheck :", enrollmentcheck);
+        response.redirect("/Student-Dashboard");
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+//Showing enrolled Courses to student
+app.get("/Student/enrolled-courses", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+    const currentUser = request.user;
+    const currentUserID = currentUser.id;
+
+    try {
+        const enrolledcourse = await enrollment.findAll({
+            where: { userID: currentUserID },
+        })
+        // console.log("enrolledcourse", enrolledcourse);
+
+        const coursesWithPageInfo = [];
+        for (let STUenrolledcourse of enrolledcourse) {
+            const Course = await course.findByPk(STUenrolledcourse.courseID, {
+                include: [
+                    {
+                        model: chapter,
+                        include: [page],
+                    }
+                ]
+            })
+            // console.log("Course:", Course);
+            // Check if the course is retrieved
+            if (Course) {
+                // Check if the course is already in the array
+                const existingCourse = coursesWithPageInfo.find(
+                    (c) => c.courseID === Course.id,
+                );
+                if (!existingCourse) {
+                    // Calculate the total number of pages for the course
+                    const totalPages = Course.chapters.reduce(
+                        (total, chapter) => total + chapter.pages.length,
+                        0,);
+                    //calculating completed pages count
+                    const completedPagescount = await enrollment.count({
+                        where: {
+                            userID: currentUserID,
+                            courseID: Course.id,
+                            completed: true
+                        }
+                    })
+                    console.log("completedPagescount", completedPagescount);
+                    //pushing all data if course is not pre-existing
+                    coursesWithPageInfo.push({
+                        userID: currentUserID,
+                        courseID: Course.id,
+                        courseName: Course.title,
+                        completedPagescount: completedPagescount,
+                        totalPages: totalPages,
+                    });
+                }
+            }
+        }
+        console.log("coursesWithPageInfo", coursesWithPageInfo);
+
+        const existingusers = await user.findAll();
+        console.log("existingusers", existingusers)
+        response.render("STUmycourse", {
+            title: `${currentUser.fullName}'s enrolled courses`,
+            courses: coursesWithPageInfo,
+            users: existingusers,
+            currentUser,
+            csrfToken: request.csrfToken(),
+        });
+    } catch (error) {
+        console.log(error);
+        return response.status(402).json(error);
     }
 })
 

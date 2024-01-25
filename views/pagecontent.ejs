@@ -34,7 +34,7 @@
 
 <body
     style="background-size: cover; background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBzMyAh4VOqkczAN_V4jr37IQYlobg8PUR7w&usqp=CAU);">
-    <div class="flex mt-10 ">
+    <div class="flex mt-5 ">
         <a href="/Educator-Dashboard" class="ml-80 underline decoration-blue-400 text-blue-600">Home</a>
         <p class="ml-3 text-blue-600">></p>
         <a href="/course/<%= currentCourse[0].id %>" class="underline decoration-blue-400 text-blue-600">
@@ -45,18 +45,21 @@
                 <%= currentChapter[0].name %>
             </p>
         </a>
-    </div>
-    <div class="flex ">
-        <button
-            class="ml-10 w-[70px] bg-pink-300 h-[40px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]"
-            onclick="deletepage(<%=currentpage.id%>)">
-            Delete
-        </button>
+        <div class="flex ">
+            <% if(user.role==="Educator" ){%>
+                <% if(currentCourse[0].userID===user.id){ %>
+                    <button
+                        class="ml-40 w-[70px] bg-pink-300 h-[40px] mb-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-blue-900 font-bold"
+                        onclick="deletepage(<%=currentpage.id%>)">
+                        Delete
+                    </button>
+                    <% }} %>
+        </div>
     </div>
     <form action="">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
     </form>
-    <div class="flex items-center justify-center ">
+    <div class="flex items-center justify-center mt-5">
         <div class="w-fit h-fit text-blue-900 text-2xl font-bold underline">
             <h1>
                 <%= currentpage.title %>

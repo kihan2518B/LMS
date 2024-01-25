@@ -26,13 +26,30 @@
                     <span class="mt-1.5 ml-3"><i class="fa-solid fa-user-graduate"></i></span>
                     <span class="mt-1.5 ml-2"> 103 </span>
                 </div>
-                <div class=" flex mt-3 ml-3">
-                    <a href="course/<%= AllCourses[i].id %>">
-                        <button
-                            class="w-[110px] bg-pink-300 h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]">
-                            View Course
-                        </button>
-                    </a>
+                <div class="flex mt-3 ml-10">
+                    <div class="">
+                        <a href="course/<%= AllCourses[i].id %>">
+                            <button
+                                class="w-[110px] bg-pink-300 h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]">
+                                View Course
+                            </button>
+                        </a>
+                    </div>
+                    <% if (CurrentUser.role==="Student" ) { %>
+                        <form
+                            action="/enroll/<%= AllCourses[i].id %>?currentUserID=<%= encodeURIComponent(CurrentUser.id) %>"
+                            method="post">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <div class="ml-3">
+                                <a href="#">
+                                    <button
+                                        class="w-[110px] bg-pink-300 h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]">
+                                        Enroll
+                                    </button>
+                                </a>
+                            </div>
+                        </form>
+                        <% } %>
                 </div>
             </div>
             <% } %>
