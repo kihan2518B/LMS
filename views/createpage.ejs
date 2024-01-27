@@ -5,6 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ckeditor.com/4.17.1/basic/ckeditor.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            CKEDITOR.replace('ckeditor', {
+                customConfig: '/public/ckeditor/config.js'
+            });
+        });
+    </script>
     <title>
         <%= title %>
     </title>
@@ -37,7 +45,7 @@
         </div>
         <div class="flex mt-2 mx-80">
             <label for="content"></label>
-            <textarea type="text" name="content"
+            <textarea id="ckeditor" type="text" name="content"
                 class="border pb-40 border-gray-300 text-gray-900 p-1 rounded w-full"></textarea>
         </div>
         <div class="flex ml-80 mt-3 ">

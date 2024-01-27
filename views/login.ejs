@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-Token" content="<%= csrfToken %>">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <title>
         <%= title %>
     </title>
@@ -24,11 +26,12 @@
                     <input class="border border-slate-400 rounded p-2 text-gray-900 w-full text-sm leading-4"
                         type="text" name="email" id="" />
                 </div>
-                <div class="py-3">
+                <div class="py-3 ">
                     <label for="password">Password:</label>
                     <input class="border border-slate-400 rounded p-2 text-gray-900 w-full text-sm leading-4"
-                        type="password" name="password" id="" />
+                        type="password" name="password" id="password" />
                 </div>
+
                 <div class="py-3">
                     <button
                         class="cursor-pointer transition-all bg-blue-500 text-white px-4 py-1 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px]border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] leading-4"
@@ -36,6 +39,31 @@
                     <a href="/signup">Not a user? Signup</a>
                 </div>
             </form>
+            <span onclick="showpassword()" class="h-fit w-fit " id="eye-open"
+                style="position: relative;left: 340px;bottom: 93px;">
+                <ion-icon name="eye-outline" class="h-6  w-6"></ion-icon>
+            </span>
+            <span onclick="showpassword()" class="h-fit w-fit hidden" id="eye-close"
+                style="position: relative;left: 340px;bottom: 93px;">
+                <ion-icon class="h-6  w-6" name="eye-off-outline"></ion-icon>
+            </span>
         </div>
     </div>
+    <script>
+        function showpassword() {
+            const password = document.getElementById('password');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClose = document.getElementById('eye-close');
+            if (password.type === "password") {
+                password.type = "text";
+                eyeClose.style.display = "block";
+                eyeOpen.style.display = "none";
+
+            } else {
+                password.type = "password";
+                eyeClose.style.display = "none";
+                eyeOpen.style.display = "block";
+            }
+        }
+    </script>
 </body>
