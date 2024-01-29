@@ -134,6 +134,7 @@ app.post("/users", async (request, response) => {
     }
 });
 
+//login page
 app.get("/login", (request, response) => {
     if (request.isAuthenticated()) {
         if (request.user.role == "Educator") {
@@ -164,6 +165,32 @@ app.post("/session",
         }
     },);
 
+//change Password
+app.get("/changepassword", async (request, response) => {
+
+    response.render("changepassword", {
+        title: "Change Your Password",
+        csrfToken: request.csrfToken(),
+    });
+});
+app.put("/changepassword", async (request, response) => {
+    const userEmail = request.body.email;
+    const newPassword = request.body.password;
+    const hashedPwd = await bcrypt.hash(newPassword, saltRounds);
+    const CurrentUser = await user.findOne({
+        where: {
+            email: userEmail
+        }
+    });
+    try {
+        const afterUpdate = await CurrentUser.update({ password: hashedPwd });
+        return response.redirect('/login');
+    } catch (error) {
+        console.log(error);
+        return response.status(422).json(error);
+    }
+})
+
 //signout
 app.get("/signout", (request, response, next) => {
     request.logout((err) => {
@@ -179,13 +206,40 @@ app.get("/signout", (request, response, next) => {
 app.get("/Educator-Dashboard", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const CurrentUser = request.user;
     const AllCourses = await course.findAll(); //all courses in DB
+
+    let allcoursesWithEnrollment = [];
+
+    for (let course of AllCourses) {
+        const enrollmentCount = await enrollment.count({
+            where: { courseID: course.id },
+            distinct: true,
+            col: "userID",
+        });
+
+        const teacherOfCourse = await user.findByPk(course.userID);
+
+        allcoursesWithEnrollment.push({
+            id: course.id,
+            teacherOfCourseFname: teacherOfCourse.fullName,
+            courseTitle: course.title,
+            enrollmentCount: enrollmentCount,
+        })
+    }
+
+    const sortedAllCourses = allcoursesWithEnrollment.sort(
+        (a, b) => b.enrollmentCount - a.enrollmentCount,
+    )
+
+    // console.log("sortedAllCourses", sortedAllCourses)
+
+
     if (request.user.role == "Student") {
         response.redirect("/Student-Dashboard")
     } else {
         response.render("Educator-Dashboard", {
             title: `${CurrentUser.fullName} Teacher-Dashboard`,
             CurrentUser,
-            AllCourses,
+            sortedAllCourses,
             csrfToken: request.csrfToken(),
         });
     }

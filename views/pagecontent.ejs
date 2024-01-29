@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-Token" content="<%= csrfToken %>">
+    <meta name="PageContent" content="<%= currentpage.content %>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ckeditor.com/4.17.1/basic/ckeditor.js"></script>
     <title>
         <%= title %>
     </title>
@@ -30,6 +32,13 @@
                     console.log(error);
                 })
         }
+
+        let PageContent = document.querySelector('meta[name="PageContent"]').getAttribute("content");
+        document.addEventListener('DOMContentLoaded', function () {
+            let databaseContent = PageContent;
+            console.log("databaseContent", databaseContent);
+            document.getElementById('contentDisplay').innerHTML = databaseContent;
+        });
     </script>
 </head>
 
@@ -69,11 +78,14 @@
     </div>
     <div class="flex items-center mx-44 bg-gray-200 h-fit border border-purple-500 border-2  mt-5">
         <div class="px-2 text-gray-900">
-            <p>
-                <%= currentpage.content %>
-            </p>
+            <div id="contentDisplay">
+            </div>
         </div>
     </div>
+    <ol>
+        <li>Fisrt List</li>
+        <li>Second List</li>
+    </ol>
     <div class=" fixed " style="bottom:4px; left: 30rem;">
         <% if(user.role==="Student" ){%>
             <% if(pageCompletedStatus) {%>
@@ -89,8 +101,8 @@
                             Mark As Completed
                         </button>
                         <% } } %>
+                    </form>
     </div>
-    </form>
 </body>
 
 </html>
