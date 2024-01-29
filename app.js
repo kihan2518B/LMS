@@ -258,10 +258,69 @@ app.get("/TEAmyCourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, res
     const CurrentUser = request.user;
     const LoggedInUser = CurrentUser.id;
     const allCourses = await course.getCourse(LoggedInUser);
+
+    let allcoursesWithEnrollment = [];
+
+    for (let course of allCourses) {
+        const enrollmentCount = await enrollment.count({
+            where: { courseID: course.id },
+            distinct: true,
+            col: "userID",
+        });
+
+        const teacherOfCourse = await user.findByPk(course.userID);
+
+        allcoursesWithEnrollment.push({
+            id: course.id,
+            teacherOfCourseFname: teacherOfCourse.fullName,
+            courseTitle: course.title,
+            enrollmentCount: enrollmentCount,
+        })
+    }
+
+    const sortedAllCourses = allcoursesWithEnrollment.sort(
+        (a, b) => b.enrollmentCount - a.enrollmentCount,
+    )
+
     response.render("TEAmycourse", {
         title: `${CurrentUser.fullName} Courses`,
-        allCourses,
+        sortedAllCourses,
         CurrentUser,
+        csrfToken: request.csrfToken(),
+    })
+});
+
+app.get("/report", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+    const CurrentUser = request.user;
+    const LoggedInUser = CurrentUser.id;
+    const allCourses = await course.getCourse(LoggedInUser);
+
+    let allcoursesWithEnrollment = [];
+
+    for (let course of allCourses) {
+        const enrollmentCount = await enrollment.count({
+            where: { courseID: course.id },
+            distinct: true,
+            col: "userID",
+        });
+
+        const teacherOfCourse = await user.findByPk(course.userID);
+
+        allcoursesWithEnrollment.push({
+            id: course.id,
+            teacherOfCourseFname: teacherOfCourse.fullName,
+            courseTitle: course.title,
+            enrollmentCount: enrollmentCount,
+        })
+    }
+
+    const sortedAllCourses = allcoursesWithEnrollment.sort(
+        (a, b) => b.enrollmentCount - a.enrollmentCount,
+    )
+
+    response.render("report", {
+        title: `${CurrentUser.fullName} Courses report`,
+        sortedAllCourses,
         csrfToken: request.csrfToken(),
     })
 })
@@ -301,7 +360,24 @@ app.get("/course/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, resp
         user,
         csrfToken: request.csrfToken(),
     });
-})
+});
+
+//delete a course
+app.delete("/course/:id/delete", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+    const currentcourse = await course.findByPk(request.params.id);
+    try {
+        const deletedcourse = await course.destroy({
+            where: {
+                id: currentcourse.id,
+            }
+        });
+        console.log("deleted", deletedcourse);
+        response.send(deletedcourse ? true : false);
+    } catch (error) {
+        console.log("Error While Deleting", error);
+        return response.status(422).json(error);
+    }
+});
 
 //page to create chapters
 app.get("/course/:id/createchapter", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
@@ -384,14 +460,14 @@ app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request
         },
         order: [["id", "ASC"]],
     });
-    console.log("Chapter", currentChapter);
+    // console.log("Chapter", currentChapter);
     const currentCourse = await course.findOne({
         where: {
             id: currentChapter.courseID,
         },
         order: [["id", "ASC"]],
     })
-    console.log("course", currentCourse);
+    // console.log("course", currentCourse);
 
     const pageCompletedStatus = await enrollment.findOne({
         where: {
@@ -402,7 +478,15 @@ app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request
             completed: true,
         }
     });
-    console.log("pageCompletedStatus", pageCompletedStatus)
+
+    const enrollmentStatus = await enrollment.findOne({
+        where: {
+            userID: user.id,
+            courseID: currentCourse.id,
+        }
+    });
+
+    // console.log("pageCompletedStatus", pageCompletedStatus)
     response.render("pagecontent", {
         title: `${currentpage.title}`,
         currentpage,
@@ -410,6 +494,7 @@ app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request
         currentChapter,
         user,
         pageCompletedStatus,
+        enrollmentStatus,
         csrfToken: request.csrfToken(),
     })
 })
@@ -518,23 +603,37 @@ app.get("/Student-Dashboard", ConnectEnsureLogin.ensureLoggedIn(), async (reques
     const CurrentUser = request.user;
     const AllCourses = await course.findAll(); //all courses in DB
 
+    let allcoursesWithEnrollment = [];
+
+    for (let course of AllCourses) {
+        const enrollmentCount = await enrollment.count({
+            where: { courseID: course.id },
+            distinct: true,
+            col: "userID",
+        });
+
+        const teacherOfCourse = await user.findByPk(course.userID);
+
+        allcoursesWithEnrollment.push({
+            id: course.id,
+            teacherOfCourseFname: teacherOfCourse.fullName,
+            courseTitle: course.title,
+            enrollmentCount: enrollmentCount,
+        })
+    }
+
+    const sortedAllCourses = allcoursesWithEnrollment.sort(
+        (a, b) => b.enrollmentCount - a.enrollmentCount,
+    )
+
     if (request.user.role == "Educator") {
         response.redirect("/Educator-Dashboard")
     } else {
 
-        for (let courseDetails of AllCourses) {
-            let enrollStudentCount = await enrollment.findAll({
-                where: {
-                    courseID: courseDetails.id,
-                }
-            })
-            // console.log("student count ", enrollStudentCount);
-
-        }
         response.render("Student-Dashboard", {
             title: `${CurrentUser.fullName} student-Dashboard`,
             CurrentUser,
-            AllCourses,
+            sortedAllCourses,
             csrfToken: request.csrfToken(),
         });
 
@@ -626,7 +725,7 @@ app.get("/Student/enrolled-courses", ConnectEnsureLogin.ensureLoggedIn(), async 
                 }
             }
         }
-        console.log("coursesWithPageInfo", coursesWithPageInfo);
+        // console.log("coursesWithPageInfo", coursesWithPageInfo);
 
         const existingusers = await user.findAll();
         // console.log("existingusers", existingusers)

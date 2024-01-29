@@ -3,11 +3,34 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-Token" content="<%= csrfToken %>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>
         <%= title %>
     </title>
+    <script>
+        var token = document.querySelector('meta[name="csrf-Token"]').getAttribute("content");
+
+        function deletecourse(id) {
+            fetch(`/course/${id}/delete`, {
+                method: "delete",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    "_csrf": token
+                })
+            })
+                .then((res) => {
+                    if (res.ok) {
+                        alert(`Course deleted succesfully`);
+                        window.location.href = "/Educator-Dashboard"
+                    }
+                })
+                .catch((err) => {
+                    console.log(error);
+                })
+        }
+    </script>
 </head>
 
 <body
@@ -22,10 +45,19 @@
         <h1 class="text-7xl font-semibold " style="color:#871be6">
             <%= courseTobeEdited.title %>
         </h1>
+        <div class="flex mt-5">
+            <% if(user.role==="Educator" ){%>
+                <% if(courseTobeEdited.userID===user.id){ %>
+                    <button
+                        class="ml-40 w-[70px] bg-pink-300 h-[40px] mb-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-blue-900 font-bold"
+                        onclick="deletecourse(<%=courseTobeEdited.id%>)">
+                        Delete
+                    </button>
+                    <% }} %>
+        </div>
     </div>
-    <div class="ml-20 text-purple-700">
-        <p>_________________________________________________________________________________________________________________________________________________
-        </p>
+    <div class="mx-20">
+        <hr class="border-t-2 border-purple-700">
     </div>
     <div class="flex mt-5 ml-72  text-pink-500 ">
         <p class="text-5xl">Chapters</p>
