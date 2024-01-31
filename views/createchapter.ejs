@@ -27,13 +27,13 @@
         </div>
         <div class="flex mt-2 mx-80 ">
             <label for="name"></label>
-            <input type="text" name="name" class="border border-gray-300 text-gray-900 rounded p-1 w-full" required>
+            <input type="text" name="name" class="border border-gray-300 text-gray-900 rounded p-1 w-full">
         </div>
         <div class="flex mt-5 ml-80 text-2xl">
             <p>Discription</p>
         </div>
         <div class="flex mt-2 mx-80 ">
-            <label for="description" required></label>
+            <label for="description"></label>
             <textarea type="text" name="discription"
                 class="border pb-20 border-gray-300 text-gray-900 p-1 rounded w-full"></textarea>
         </div>
@@ -45,7 +45,8 @@
                 </button>
             </a>
     </form>
-    </div>
+    <%- include('notifications.ejs') %>
+        </div>
 </body>
 
 </html>

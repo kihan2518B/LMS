@@ -35,8 +35,14 @@
                                         <%= user.fullName %>
                                     </p>
                                     <% } } %>
-                                        <span class="mt-1.5 ml-3"><i class="fa-solid fa-user-graduate"></i></span>
-                                        <span class="mt-1.5 ml-2"> 103 </span>
+                                        <% for(let allCourse of sortedcourse){%>
+                                            <% if(allCourse.id===course.courseID){%>
+                                                <span class="mt-1.5 ml-3"><i
+                                                        class="fa-solid fa-user-graduate"></i></span>
+                                                <span class="mt-1.5 ml-2">
+                                                    <%= allCourse.enrollmentCount%>
+                                                </span>
+                                                <%}}%>
                         </div>
                         <div class="flex mt-3 ml-4">
                             <a href="/course/<%= course.courseID %>">

@@ -18,8 +18,20 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   page.init({
-    title: DataTypes.STRING,
-    content: DataTypes.TEXT
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notNull: true,
+      },
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        notNull: true,
+      },
+    }
   }, {
     sequelize,
     modelName: 'page',
