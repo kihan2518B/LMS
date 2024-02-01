@@ -13,6 +13,7 @@ const ConnectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const flash = require("connect-flash");
 const LocalStrategy = require("passport-local");
+const { json } = require("sequelize");
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
@@ -482,7 +483,6 @@ app.get("/chapter/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, res
 //page to show content of page
 app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
     const currentpage = await page.findByPk(request.params.id);
-
     const user = request.user;
     const currentChapter = await chapter.findOne({
         where: {
@@ -515,7 +515,7 @@ app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request
             courseID: currentCourse.id,
         }
     });
-
+    console.log(currentpage.content);
     // console.log("pageCompletedStatus", pageCompletedStatus)
     response.render("pagecontent", {
         title: `${currentpage.title}`,

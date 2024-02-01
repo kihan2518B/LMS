@@ -5,12 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.ckeditor.com/4.17.1/basic/ckeditor.js"></script>
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function () {
-            CKEDITOR.replace('ckeditor', {
-                customConfig: '/public/ckeditor/config.js'
-            });
+    <script src="https://cdn.tiny.cloud/1/4kf65tqd87hkv5dzeqcfjo6dsbr40ozbkjwuvuulzdpyo8jn/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: '#textarea',
+            plugins: 'ai tinycomments mentions anchor autolink charmap codesample emoticons link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed permanentpen footnotes advtemplate advtable advcode editimage tableofcontents powerpaste tinymcespellchecker autocorrect a11ychecker typography inlinecss',
+            // plugins: 'ai tinycomments mentions anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed permanentpen footnotes advtemplate advtable advcode editimage tableofcontents mergetags powerpaste tinymcespellchecker autocorrect a11ychecker typography inlinecss',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+            tinycomments_mode: 'embedded',
+            tinycomments_author: 'Author name',
+            mergetags_list: [
+                { value: 'First.Name', title: 'First Name' },
+                { value: 'Email', title: 'Email' },
+            ],
+            ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
         });
     </script>
     <title>
@@ -45,7 +54,7 @@
         </div>
         <div class="flex mt-2 mx-80">
             <label for="content"></label>
-            <textarea id="ckeditor" type="text" name="content"
+            <textarea id="textarea" type="text" name="content"
                 class="border pb-40 border-gray-300 text-gray-900 p-1 rounded w-full"></textarea>
         </div>
         <div class="flex ml-80 mt-3 ">
