@@ -4,4 +4,6 @@ Welcome to **Learning Management System** (LMS) built using Node.js! This platfo
 
 ##Visual Impressions of the Application
 
-[Link Text](https://learning-management-system-kbrl.onrender.com/)
+[Link to the live application](https://learning-management-system-kbrl.onrender.com/){:target="_blank"}
+
+[Link to video demo](#){:target="_blank"}
