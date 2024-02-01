@@ -119,7 +119,7 @@ app.post("/users", async (request, response) => {
     const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
     // console.log(hashedPwd);
     //have to create User
-    console.log(request.body)
+    // console.log(request.body);
     try {
         const users = await user.create({
             role: request.body.role,

@@ -33,12 +33,12 @@
                 })
         }
 
-        // let PageContent = document.querySelector('meta[name="PageContent"]').getAttribute("content");
-        // document.addEventListener('DOMContentLoaded', function () {
-        //     let databaseContent = PageContent;
-        //     console.log("databaseContent", databaseContent);
-        //     document.getElementById('contentDisplay').innerHTML = databaseContent;
-        // });
+        let PageContent = document.querySelector('meta[name="PageContent"]').getAttribute("content");
+        document.addEventListener('DOMContentLoaded', function () {
+            let databaseContent = PageContent;
+            console.log("databaseContent", databaseContent);
+            document.getElementById('contentDisplay').innerHTML = databaseContent;
+        });
     </script>
 </head>
 
@@ -78,9 +78,8 @@
     </div>
     <div class="flex items-center mx-44 bg-gray-200 h-fit border border-purple-500 border-2  mt-5">
         <div class="px-2 text-gray-900">
-            <div id="editor">
-                <%- currentpage.content %>
-            </div>
+            <pre id="contentDisplay">
+            </pre>
         </div>
     </div>
 
