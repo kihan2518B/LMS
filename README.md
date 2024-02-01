@@ -9,7 +9,7 @@ Welcome to **Learning Management System** (LMS) built using Node.js! This platfo
 **Educator Dashboard** ![Educator Dashboard](/projectimages/Educator-Dashboard.png)
 **Reports for educators** ![Reports for educators](/projectimages/report.png)
 **Student Dashboard** ![Student Dashboard](/projectimages/Student-Dashboard.png)
-**Student Progress section** ![Student Progress section](/projectimages/student-report.png)
+**Student Progress section** ![Student Progress section](/projectimages/Student-report.png)
 <br>
 
 ## Link to the live application - <a target="blank" href="https://learning-management-system-kbrl.onrender.com/">Learning Management System </a>
