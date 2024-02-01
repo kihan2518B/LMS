@@ -3,5 +3,6 @@ Welcome to **Learning Management System** (LMS) built using Node.js! This platfo
 
 
 ##Visual Impressions of the Application
+
 **Home Page**
-![Home Pgae](C:\Users\BAPS\Pictures\Screenshots\homepage.png)
+<img scr="../public/image/homepage" alt="home page"></img>
