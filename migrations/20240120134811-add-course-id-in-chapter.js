@@ -10,7 +10,7 @@ module.exports = {
       fields: ["courseID"], //It is used to define that, courseID is a foreign key in chapters table, which refers to the id column of Users table.
       type: "foreign key",
       references: {
-        table: "chapters",
+        table: "courses",
         field: "id",
       },
     });
