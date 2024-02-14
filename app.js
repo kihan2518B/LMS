@@ -349,12 +349,12 @@ app.post("/createCourse", ConnectEnsureLogin.ensureLoggedIn(), async (request, r
         return response.redirect("/createcourse");
     }
     try {
-        await course.create({
+        const newCourse = await course.create({
             title: request.body.title,
             userID: CurrentUser.id,
         });
         // console.log("course created succesfull");
-        return response.redirect(`/Educator-Dashboard`);
+        return response.redirect(`/course/${newCourse.id}/createchapter`);
     } catch (error) {
         console.log(error);
         return response.status(422).json(error)
@@ -441,12 +441,12 @@ app.post("/course/:id/createchapter", ConnectEnsureLogin.ensureLoggedIn(), async
         return response.redirect(`/course/${courseID}/createchapter`)
     }
     try {
-        await chapter.createchapter({
+        const newChapter = await chapter.create({
             name: request.body.name,
             discription: request.body.discription,
             courseID,
         })
-        return response.redirect(`/course/${courseID}`)
+        return response.redirect(`/chapter/${newChapter.id}/createpage`)
     } catch (error) {
         console.log(error);
         return response.status(422).json(error)

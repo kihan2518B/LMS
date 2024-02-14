@@ -31,23 +31,23 @@
                     </span>
                 </div>
                 <div class="flex mt-3 ml-10">
-                    <div class="">
+                    <!-- <div class="">
                         <a href="course/<%= sortedAllCourses[i].id %>">
                             <button
                                 class="w-[110px] bg-pink-300 h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]">
                                 View Course
                             </button>
                         </a>
-                    </div>
+                    </div> -->
                     <% if (CurrentUser.role==="Student" ) { %>
                         <form
                             action="/enroll/<%= sortedAllCourses[i].id %>?currentUserID=<%= encodeURIComponent(CurrentUser.id) %>"
                             method="post">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                            <div class="ml-3">
+                            <div class="">
                                 <a href="#">
-                                    <button
-                                        class="w-[110px] bg-pink-300 h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]">
+                                    <button style="left: -25px;"
+                                        class="w-[17rem] bg-pink-300 h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-[#fff]">
                                         Enroll
                                     </button>
                                 </a>
