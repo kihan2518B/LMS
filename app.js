@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
-const { course, chapter, user, page, enrollment } = require("./models");
+const connect = require("./src/config/db.config");
+// const { user, course, chapter, page, enrollment } = require("./src/models");
+const user = require("./src/models/user.model")
 const bodyParser = require("body-parser");
 const path = require("path");
 const csrf = require("tiny-csrf");
@@ -20,6 +22,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("Shh! some secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"])); //THE TEXT SHOULD BE OF 32 CHARACTERS ONLY
 app.use(express.static(path.join(__dirname, "public")));
+// Set the views directory
+app.set('views', path.join(__dirname, 'src', 'views'));
 app.set("view engine", "ejs");
 app.use(flash());
 
@@ -92,56 +96,9 @@ app.get("/", async (request, response) => {
     response.render("home", { title: 'MY school' });
 });
 
-//Signup
-app.get("/signup", async (request, response) => {
-    response.render("signup", {
-        title: "SignUp",
-        csrfToken: request.csrfToken(),
-    });
-})
-
-
-//for signup
-app.post("/users", async (request, response) => {
-    const { fullName, email, password } = request.body;
-
-    // Check if the password is empty
-    if (!password || !fullName || !email) {
-        // Flash an error message
-        request.flash( //for flasing
-            "error",
-            "Password and fullname and Email are must required!",
-        );
-        // Redirect to the same page or a designated error page
-        return response.redirect("/signup"); // You can customize the redirect URL
-    }
-    //Hashing The password
-    const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
-    // console.log(hashedPwd);
-    //have to create User
-    // console.log(request.body);
-    try {
-        const users = await user.create({
-            role: request.body.role,
-            fullName: request.body.fullName,
-            email: request.body.email,
-            password: hashedPwd,
-        });
-        request.login(users, (err) => {
-            if (err) {
-                console.log(err);
-            }
-            const role = request.body.role;
-            if (role === "Educator") {
-                response.redirect("/Educator-Dashboard");
-            } else if (role === "Student") {
-                response.redirect("/Student-Dashboard");
-            }
-        });
-    } catch (error) {
-        console.log(error);
-    }
-});
+//Signup Route
+const signupRoutes = require('./src/Routes/signup/route');
+app.use('/', signupRoutes)
 
 //login page
 app.get("/login", (request, response) => {
