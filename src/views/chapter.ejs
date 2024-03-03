@@ -50,7 +50,7 @@
                 <% if(courseTobeEdited.userID===user.id){ %>
                     <button
                         class="ml-40 w-[70px] bg-pink-300 h-[40px] mb-3 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 ease-in-out shadow-md hover:scale-105 hover:shadow-lg before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-[#6b08c4] before:to-[#9937f0] before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-xl hover:before:left-0 text-blue-900 font-bold"
-                        onclick="deletecourse(<%=courseTobeEdited.id%>)">
+                        onclick="deletecourse(`<%= courseTobeEdited.id %>`)">
                         Delete
                     </button>
                     <% }} %>
