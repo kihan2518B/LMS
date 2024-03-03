@@ -5,7 +5,8 @@ const connect = mongoose.connect("mongodb+srv://kp648027:kishan@cluster0.ihvropz
 connect.then(() => {
     console.log("Database connected successfully");
 })
-    .catch(() => {
+    .catch((error) => {
         console.log("Error while connecting to database");
+        console.log(error)
     })
 module.exports = connect

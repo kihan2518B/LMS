@@ -1,36 +1,46 @@
 const express = require('express');
-const router = express.Router()
+const router = express.Router();
+const passport = require('passport');
+
 
 // for login
+router.get('/login', async (req, res) => {
+    // console.log(req.user);
+    res.render('login', {
+        title: "Login",
+        csrfToken: req.csrfToken(),
+    })
+})
+
 router.post("/session",
     passport.authenticate("local", {
         failureRedirect: "/login",
         failureFlash: true,
     }),
-    (request, response) => {
-        // console.log(request.user);
-        if (request.user.role == "Educator") {
-            response.redirect("/Educator-Dashboard");
-        } else if (request.user.role == "Student") {
-            response.redirect("/Student-Dashboard");
+    (req, res) => {
+        // console.log(req.user);
+        if (req.user.role == "Educator") {
+            res.redirect("/Educator-Dashboard");
+        } else if (req.user.role == "Student") {
+            res.redirect("/Student-Dashboard");
         } else {
-            response.redirect("/");
+            res.redirect("/");
         }
     },);
 
 //change Password
-router.get("/changepassword", async (request, response) => {
+router.get("/changepassword", async (req, res) => {
 
-    response.render("changepassword", {
+    res.render("changepassword", {
         title: "Change Your Password",
-        csrfToken: request.csrfToken(),
+        csrfToken: req.csrfToken(),
     });
 });
-router.put("/changepassword", async (request, response) => {
-    const userEmail = request.body.email;
-    const newPassword = request.body.password;
+router.put("/changepassword", async (req, res) => {
+    const userEmail = req.body.email;
+    const newPassword = req.body.password;
     if (!userEmail || !newPassword) {
-        request.flash("error", "Please Enter Both userEmail and Newpassword")
+        req.flash("error", "Please Enter Both userEmail and Newpassword")
     }
     const hashedPwd = await bcrypt.hash(newPassword, saltRounds);
     const CurrentUser = await user.findOne({
@@ -40,19 +50,21 @@ router.put("/changepassword", async (request, response) => {
     });
     try {
         const afterUpdate = await CurrentUser.update({ password: hashedPwd });
-        return response.redirect('/login');
+        return res.redirect('/login');
     } catch (error) {
         console.log(error);
-        return response.status(422).json(error);
+        return res.status(422).json(error);
     }
 })
 
 //signout
-router.get("/signout", (request, response, next) => {
-    request.logout((err) => {
+router.get("/signout", (req, res, next) => {
+    req.logout((err) => {
         if (err) {
             return next(err);
         }
-        response.redirect("/");
+        res.redirect("/");
     });
 });
+
+module.exports = router

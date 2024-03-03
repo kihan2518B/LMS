@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const connect = require("./src/config/db.config");
 // const { user, course, chapter, page, enrollment } = require("./src/models");
-const user = require("./src/models/user.model")
+const user = require("./src/models/user");
 const bodyParser = require("body-parser");
 const path = require("path");
 const csrf = require("tiny-csrf");
@@ -18,7 +18,8 @@ const LocalStrategy = require("passport-local");
 const { json } = require("sequelize");
 
 app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use(cookieParser("Shh! some secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"])); //THE TEXT SHOULD BE OF 32 CHARACTERS ONLY
 app.use(express.static(path.join(__dirname, "public")));
@@ -53,7 +54,7 @@ passport.use(
             role: "role",
         },
         (email, password, done) => {
-            user.findOne({ where: { email: email } })
+            user.findOne({ email: email })
                 .then(async function (user) {
                     if (!user) {
                         console.log("Not A user");
@@ -83,8 +84,9 @@ passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 passport.deserializeUser((id, done) => {
-    user.findByPk(id)
+    user.findOne({ _id: id }) //passing _id to findOne as an object
         .then((user) => {
+            console.log(user)
             done(null, user);
         })
         .catch((error) => {
@@ -97,81 +99,12 @@ app.get("/", async (request, response) => {
 });
 
 //Signup Route
-const signupRoutes = require('./src/Routes/signup/route');
-app.use('/', signupRoutes)
+const signupRoutes = require('./src/Routes/signup/route.js');
+app.use('/', signupRoutes);
 
 //login page
-app.get("/login", (request, response) => {
-    if (request.isAuthenticated()) {
-        if (request.user.role == "Educator") {
-            response.redirect("/Educator-Dashboard");
-        } else if (request.user.role == "Student") {
-            response.redirect("/Student-Dashboard");
-        }
-    } else {
-        response.render("login", {
-            title: "Login",
-            csrfToken: request.csrfToken(),
-        });
-    }
-});
-
-// for login
-app.post("/session",
-    passport.authenticate("local", {
-        failureRedirect: "/login",
-        failureFlash: true,
-    }),
-    (request, response) => {
-        // console.log(request.user);
-        if (request.user.role == "Educator") {
-            response.redirect("/Educator-Dashboard");
-        } else if (request.user.role == "Student") {
-            response.redirect("/Student-Dashboard");
-        } else {
-            response.redirect("/");
-        }
-    },);
-
-//change Password
-app.get("/changepassword", async (request, response) => {
-
-    response.render("changepassword", {
-        title: "Change Your Password",
-        csrfToken: request.csrfToken(),
-    });
-});
-app.put("/changepassword", async (request, response) => {
-    const userEmail = request.body.email;
-    const newPassword = request.body.password;
-    if (!userEmail || !newPassword) {
-        request.flash("error", "Please Enter Both userEmail and Newpassword")
-    }
-    const hashedPwd = await bcrypt.hash(newPassword, saltRounds);
-    const CurrentUser = await user.findOne({
-        where: {
-            email: userEmail
-        }
-    });
-    try {
-        const afterUpdate = await CurrentUser.update({ password: hashedPwd });
-        return response.redirect('/login');
-    } catch (error) {
-        console.log(error);
-        return response.status(422).json(error);
-    }
-})
-
-//signout
-app.get("/signout", (request, response, next) => {
-    request.logout((err) => {
-        if (err) {
-            return next(err);
-        }
-        response.redirect("/");
-    });
-});
-
+const loginRoutes = require('./src/Routes/signin/route.js')
+app.use('/', loginRoutes);
 
 //home page for Educator
 app.get("/Educator-Dashboard", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
