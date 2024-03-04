@@ -8,14 +8,12 @@ const path = require("path");
 const csrf = require("tiny-csrf");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
-const saltRounds = 10;
 
 const passport = require("passport");
 const ConnectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const flash = require("connect-flash");
 const LocalStrategy = require("passport-local");
-const { json } = require("sequelize");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -110,191 +108,9 @@ app.use('/', loginRoutes);
 const educatorRoutes = require('./src/Routes/Educator/route.js');
 app.use('/', educatorRoutes);
 
-
-
-//Showing Pages
-app.get("/chapter/:id", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-    const currentChapter = await chapter.findByPk(request.params.id);
-    const user = request.user;
-    const currentCourse = await course.findAll({
-        where: {
-            id: currentChapter.courseID,
-        }
-    })
-    // console.log("course", currentCourse);
-    const PagesofChapter = await page.findAll({
-        where: {
-            chapterID: currentChapter.id,
-        },
-        order: [["id", "ASC"]],
-    });
-
-    response.render("pages", {
-        title: `${currentChapter.name}`,
-        currentChapter,
-        currentCourse,
-        user,
-        PagesofChapter,
-        csrfToken: request.csrfToken(),
-    })
-});
-
-//page to show content of page
-app.get("/chapter/:id/page", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-    const currentpage = await page.findByPk(request.params.id);
-    const user = request.user;
-    const currentChapter = await chapter.findOne({
-        where: {
-            id: currentpage.chapterID,
-        },
-        order: [["id", "ASC"]],
-    });
-    // console.log("Chapter", currentChapter);
-    const currentCourse = await course.findOne({
-        where: {
-            id: currentChapter.courseID,
-        },
-        order: [["id", "ASC"]],
-    })
-    // console.log("course", currentCourse);
-
-    const pageCompletedStatus = await enrollment.findOne({
-        where: {
-            userID: user.id,
-            courseID: currentCourse.id,
-            chapterID: currentChapter.id,
-            pageID: currentpage.id,
-            completed: true,
-        }
-    });
-
-    const enrollmentStatus = await enrollment.findOne({
-        where: {
-            userID: user.id,
-            courseID: currentCourse.id,
-        }
-    });
-    console.log(currentpage.content);
-    // console.log("pageCompletedStatus", pageCompletedStatus)
-    response.render("pagecontent", {
-        title: `${currentpage.title}`,
-        currentpage,
-        currentCourse,
-        currentChapter,
-        user,
-        pageCompletedStatus,
-        enrollmentStatus,
-        csrfToken: request.csrfToken(),
-    })
-})
-
-// marking pages as completed
-app.post("/chapter/:id/markAsCompleted", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-    try {
-        const currentpage = await page.findByPk(request.params.id);
-        const currentChapter = await chapter.findAll({
-            where: {
-                id: currentpage.chapterID,
-            },
-            order: [["id", "ASC"]],
-        });
-        const currentCourse = await course.findAll({
-            where: {
-                id: currentChapter[0].courseID,
-            },
-            order: [["id", "ASC"]],
-        })
-
-        const userID = request.user.id;
-        const courseID = currentCourse[0].id;
-        const chapterID = currentChapter[0].id;
-        const pageID = currentpage.id;
-
-        // console.log(userID);
-        // console.log(courseID);
-        // console.log(chapterID);
-        // console.log(pageID);
-        await enrollment.create({
-            userID: userID,
-            courseID: courseID,
-            chapterID: chapterID,
-            pageID: pageID,
-            completed: true,
-        });
-
-        response.redirect(`/chapter/${pageID}/page`)
-    } catch (error) {
-        console.error("Error marking page as complete", error);
-        response
-            .status(500)
-            .send("An error occurred while marking the page as complete");
-    }
-})
-
-//page to add pages
-app.get("/chapter/:id/createpage", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-    const currentChapter = await chapter.findByPk(request.params.id);
-    const currentCourse = await course.findAll({
-        where: {
-            id: currentChapter.courseID,
-        }
-    })
-    response.render("createpage", {
-        title: `${currentChapter.name}`,
-        currentChapter,
-        currentCourse,
-        csrfToken: request.csrfToken(),
-    })
-});
-
-//adding pages
-app.post("/chapter/:id/createpage", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-    const chapterTobeEdited = await chapter.findByPk(request.params.id);
-    const chapterID = chapterTobeEdited.id;
-    // console.log("course:", chapterTobeEdited);
-    // console.log("ChapterId", chapterID)
-    // console.log("title", request.body.title)
-    // console.log("Content", request.body.content);
-    // console.log("title", chapterTobeEdited.name);
-    const pageTitle = request.body.title;
-    if (!pageTitle) {
-        request.flash("error", "Please Enter Page Title ");
-        return response.redirect(`/chapter/${chapterID}/createpage`);
-    }
-    try {
-        await page.create({
-            title: request.body.title,
-            content: request.body.content,
-            chapterID,
-        })
-        return response.redirect(`/chapter/${chapterID}`)
-    } catch (error) {
-        console.log(error);
-        return response.status(422).json(error);
-    }
-
-});
-
-//delete a page
-app.delete("/pages/:id/delete", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-    const currentpage = await page.findByPk(request.params.id);
-    try {
-        const deleteEnrolledpage = await enrollment.destroy({
-            where: { pageID: currentpage.id }
-        });
-        const deletedpage = await page.destroy({
-            where: {
-                id: currentpage.id,
-            }
-        });
-        console.log("deleted", deletedpage);
-        console.log("deleted", deleteEnrolledpage);
-        response.send(deletedpage ? true : false);
-    } catch (error) {
-        console.log("Error While Deleting", error);
-        return response.status(422).json(error);
-    }
-});
+//Routes related to adding,deleting and marking page as complete
+const pageRoutes = require('./src/Routes/Page/route.js');
+app.use('/', pageRoutes);
 
 //Dashboard for Students
 app.get("/Student-Dashboard", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
